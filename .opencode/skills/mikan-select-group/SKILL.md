@@ -5,6 +5,8 @@ description: Use when the user wants to pick a fansub group (字幕组) for a ne
 
 # 选番选组与订阅（W1 + W2）
 
+> 所有命令需在仓库的 `mikan-qb/` 目录下执行（uv workspace 根；从仓库根进入时先 `cd mikan-qb`）。
+
 把「某季新番 → 选字幕组 → 生成 mikan RSS → 写入 qB feed + 自动下载规则」这条链路走完。
 所有确定性动作都由 `mikan` CLI 完成；本 Skill 只负责**选择、解释与向用户确认**。
 
@@ -123,7 +125,7 @@ uv run mikan qb rules match "<rule_name>" --json      # rule_name 形如 简日/
 
 ## 下载剧集到本地待观看目录
 
-当用户要求「把某些动画剧集下载到本地观看」时，统一存到仓库根目录的 `tmp-watch/`（已加入 `.gitignore`，不入库）。
+当用户要求「把某些动画剧集下载到本地观看」时，统一存到 `mikan-qb/tmp-watch/`（`mikan-qb/.gitignore` 已忽略该目录，不入库）。
 
 qB 在远程主机，文件不在本机；需经 SSH 从服务器取回：
 

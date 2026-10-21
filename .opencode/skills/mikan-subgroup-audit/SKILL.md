@@ -5,6 +5,8 @@ description: Use when the user asks how reliable a fansub group is, what a 字�
 
 # 字幕组健康度解读（W3）
 
+> 所有命令需在仓库的 `mikan-qb/` 目录下执行（uv workspace 根；从仓库根进入时先 `cd mikan-qb`）。
+
 把 `mikan` 输出的指标数字翻译成人能懂的结论与证据。**只解释，不擅自替用户在多个候选间做决定。**
 
 ## 数据来源
@@ -17,7 +19,7 @@ uv run mikan subgroup audit --scan 2026夏 --json                    # 扫全季
 ```
 
 - `subgroup stats` 需要 `sid`；用 `--name` 模糊检索时若命中多个会以退出码 3 列出候选，**请用户选一个**。
-- 详细指标定义见仓库根目录 `METRICS.md`；聚合与历史回看口径见 `METRICS.md` 与 `PLAN.md`（完成摘要）。
+- 详细指标定义见 `mikan-qb/METRICS.md`；聚合与历史回看口径见 `mikan-qb/METRICS.md` 与 `mikan-qb/PLAN.md`（完成摘要）。
 
 ## 读什么字段
 

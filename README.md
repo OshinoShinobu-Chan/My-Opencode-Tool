@@ -25,7 +25,7 @@ python bangumi/scripts/bgm.py comments --subject 400602 --ep 1
 ```
 
 写操作需要 Bangumi 个人 access token，放在 `bangumi/token.txt`（已排除入库）或环境变量 `BANGUMI_TOKEN`。
-详见 [`bangumi/SKILL.md`](bangumi/SKILL.md)。
+详见 [`.opencode/skills/bangumi/SKILL.md`](.opencode/skills/bangumi/SKILL.md)。
 
 ## mikan-qb
 
@@ -37,7 +37,7 @@ Mikan 新番订阅与 qBittorrent RSS 管理工具，uv workspace 包含两个�
 - **`packages/mikan-health`**：独立的字幕组健康度评估算法包，零 qB 依赖，
   评分标准外置在 `profiles/*.toml`，改标准不用改代码。
 
-另含 `tools/sitewide/`（全站字幕组长期画像评估，2016–2026 报告）与 4 个 Agent Skill（`mikan-qb/.opencode/skills/`）。
+另含 `tools/sitewide/`（全站字幕组长期画像评估，2016–2026 报告）与 4 个 Agent Skill（见 `.opencode/skills/`）。
 
 ```bash
 uv run mikan config validate          # 配置与 qB 连通性自检
@@ -54,7 +54,8 @@ uv run mikan status
 
 ```
 .
-├── bangumi/            # Bangumi 番组计划 CLI 与 Skill
+├── .opencode/skills/   # Agent Skills（bangumi + mikan 系列 4 个 + 共享 references）
+├── bangumi/            # Bangumi 番组计划 CLI（bgm.py）
 ├── mikan-qb/           # Mikan + qBittorrent 订阅管理（uv workspace）
 └── .gitignore
 ```
@@ -62,4 +63,4 @@ uv run mikan status
 ## 说明
 
 - `bangumi/token.txt`、`mikan-qb/.env` 等本地凭据已被 `.gitignore` 排除，仓库内只保留 `.env.example` 模板。
-- 两个工具均可由 opencode agent 通过各自的 `SKILL.md` / `AGENTS.md` 调用。
+- 两个工具均可由 opencode agent 通过 `.opencode/skills/` 中的 Skill 调用（mikan-qb 另有 `AGENTS.md` 约定）。

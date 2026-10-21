@@ -1,6 +1,6 @@
 ---
 name: bangumi
-description: Use when the user wants to do anything with Bangumi / bgm.tv / 番组计划 on this Windows machine — 用动画标题搜索条目、把动画标记为想看/在看/看过、给动画打分、把某一集标记为看过、检查自己的想看/在看列表里哪些正在放送、查看某一集的吐槽/讨论。Wraps a pure-Python CLI at E:\opencode自动化工具\bangumi\scripts\bgm.py (official API api.bgm.tv/v0 plus bgm.tv page scraping for episode comments).
+description: Use when the user wants to do anything with Bangumi / bgm.tv / 番组计划 on this Windows machine — 用动画标题搜索条目、把动画标记为想看/在看/看过、给动画打分、把某一集标记为看过、检查自己的想看/在看列表里哪些正在放送、查看某一集的吐槽/讨论。Wraps a pure-Python CLI at E:\opencode-tool\bangumi\scripts\bgm.py (official API api.bgm.tv/v0 plus bgm.tv page scraping for episode comments).
 ---
 
 # bangumi（bgm.tv 番组计划）
@@ -12,15 +12,15 @@ description: Use when the user wants to do anything with Bangumi / bgm.tv / 番�
 | 项目 | 值 |
 |---|---|
 | 语言 | Python 3.8（`python` 已在 PATH，只用标准库，无第三方依赖） |
-| CLI | `E:\opencode自动化工具\bangumi\scripts\bgm.py` |
-| token 文件 | `E:\opencode自动化工具\bangumi\token.txt`（一行，只放 access token） |
+| CLI | `E:\opencode-tool\bangumi\scripts\bgm.py` |
+| token 文件 | `E:\opencode-tool\bangumi\token.txt`（一行，只放 access token） |
 | 官方 API | `https://api.bgm.tv/v0`，文档 https://bangumi.github.io/api/ |
 | 网页 | `https://bgm.tv`（只用于抓某一集的吐槽，官方 API 没有这个接口） |
 
 下文用 `$BGM` 代指脚本完整路径。**非交互 / agent 调用一律写完整路径**：
 
 ```powershell
-python 'E:\opencode自动化工具\bangumi\scripts\bgm.py' --help
+python 'E:\opencode-tool\bangumi\scripts\bgm.py' --help
 ```
 
 ---
@@ -33,7 +33,7 @@ python 'E:\opencode自动化工具\bangumi\scripts\bgm.py' --help
 获取与保存：
 
 1. 浏览器打开 <https://next.bgm.tv/demo/access-token>，用你的 Bangumi 账号生成一个个人令牌（Personal Access Token）。
-2. 把 token 写进 `E:\opencode自动化工具\bangumi\token.txt`（整行只放 token，不要引号、不要 `Bearer`）。
+2. 把 token 写进 `E:\opencode-tool\bangumi\token.txt`（整行只放 token，不要引号、不要 `Bearer`）。
    或者让用户直接在终端执行：`python 'E:\...\scripts\bgm.py' set-token`（会隐藏输入并自动验证）。
    或者设置环境变量 `BANGUMI_TOKEN`。
 

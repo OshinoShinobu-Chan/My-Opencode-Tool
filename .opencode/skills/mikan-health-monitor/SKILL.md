@@ -5,6 +5,8 @@ description: Use during an ongoing season to audit already-subscribed anime for 
 
 # 季度中巡检（不自动执行）
 
+> 所有命令需在仓库的 `mikan-qb/` 目录下执行（uv workspace 根；从仓库根进入时先 `cd mikan-qb`）。
+
 定期（用户手动触发）检查托管清单里的番剧是否落后于自身节奏或同番最快组，输出「继续等 / 需关注 / 建议换组」，**不自动做任何写操作**。
 
 ## 当前可用命令

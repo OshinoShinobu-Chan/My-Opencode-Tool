@@ -5,6 +5,8 @@ description: Use when a currently subscribed fansub group (字幕组) has stalle
 
 # 换组替换（W4，两阶段事务）
 
+> 所有命令需在仓库的 `mikan-qb/` 目录下执行（uv workspace 根；从仓库根进入时先 `cd mikan-qb`）。
+
 **先建后删**：阶段一只写新组（feed + rule + 回填），不删任何旧内容；阶段二校验新组已下完，才删旧组种子/文件/规则/feed。
 中途不满意可以 `abort` 回滚。所有写操作默认 dry-run，必须显式 `--apply`。
 
