@@ -1,0 +1,24 @@
+[project]
+name = "mikan-health"
+version = "0.1.0"
+description = "Mikan 字幕组健康度评估（独立算法包，零 qBittorrent 依赖）"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.8",
+    "typer>=0.12",
+    "rich>=13.7",
+    "httpx>=0.27",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.2",
+]
+
+[project.scripts]
+mikan-health = "mikan_health.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mikan_health"]

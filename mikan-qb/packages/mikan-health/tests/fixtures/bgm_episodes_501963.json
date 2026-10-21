@@ -1,0 +1,147 @@
+{
+  "data": [
+    {
+      "id": 1704816,
+      "type": 0,
+      "sort": 1.0,
+      "ep": 1.0,
+      "airdate": "2026-07-04",
+      "name": "燃えよ狂犬",
+      "name_cn": "燃烧吧，狂犬",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704817,
+      "type": 0,
+      "sort": 2.0,
+      "ep": 2.0,
+      "airdate": "2026-07-04",
+      "name": "吠えよ狂犬",
+      "name_cn": "咆哮吧，狂犬",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704818,
+      "type": 0,
+      "sort": 3.0,
+      "ep": 3.0,
+      "airdate": "2026-07-12",
+      "name": "帰ってきた日常",
+      "name_cn": "回归熟悉的日常",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704819,
+      "type": 0,
+      "sort": 4.0,
+      "ep": 4.0,
+      "airdate": "2026-07-19",
+      "name": "水王級魔術師",
+      "name_cn": "水王级魔术师",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704820,
+      "type": 0,
+      "sort": 5.0,
+      "ep": 5.0,
+      "airdate": "2026-07-26",
+      "name": "お祝い",
+      "name_cn": "庆祝",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704821,
+      "type": 0,
+      "sort": 6.0,
+      "ep": 6.0,
+      "airdate": "2026-08-02",
+      "name": "修羅場再び？",
+      "name_cn": "再度面临修罗场？",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704822,
+      "type": 0,
+      "sort": 7.0,
+      "ep": 7.0,
+      "airdate": "2026-08-09",
+      "name": "第四段階",
+      "name_cn": "第四阶段",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704823,
+      "type": 0,
+      "sort": 8.0,
+      "ep": 8.0,
+      "airdate": "2026-08-16",
+      "name": "空中城塞",
+      "name_cn": "空中要塞",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704824,
+      "type": 0,
+      "sort": 9.0,
+      "ep": 9.0,
+      "airdate": "2026-08-23",
+      "name": "慟哭",
+      "name_cn": "恸哭",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704825,
+      "type": 0,
+      "sort": 10.0,
+      "ep": 10.0,
+      "airdate": "2026-08-30",
+      "name": "不死魔王との謁見",
+      "name_cn": "晋见不死魔王",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704826,
+      "type": 0,
+      "sort": 11.0,
+      "ep": 11.0,
+      "airdate": "2026-09-06",
+      "name": "ターニングポイント4",
+      "name_cn": "转折点4",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1704827,
+      "type": 0,
+      "sort": 12.0,
+      "ep": 12.0,
+      "airdate": "2026-09-13",
+      "name": "終わりと始まり",
+      "name_cn": "结束与开始",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1717533,
+      "type": 0,
+      "sort": 13.0,
+      "ep": 13.0,
+      "airdate": "2026-09-20",
+      "name": "日記",
+      "name_cn": "日记",
+      "duration_seconds": 1420
+    },
+    {
+      "id": 1717534,
+      "type": 0,
+      "sort": 14.0,
+      "ep": 14.0,
+      "airdate": "2026-09-27",
+      "name": "",
+      "name_cn": "",
+      "duration_seconds": 1420
+    }
+  ],
+  "total": 14,
+  "limit": 100,
+  "offset": 0
+}

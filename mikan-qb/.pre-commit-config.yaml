@@ -1,0 +1,63 @@
+# 说明：本机无法访问 github.com，故不使用远程 hook 仓库（pre-commit-hooks / ruff-pre-commit），
+# 全部改为离线 local hook。基础卫生由 tools/hygiene.py 实现，其余复用 PyPI 上的工具。
+exclude: ^packages/mikan-health/tests/fixtures/
+
+repos:
+  - repo: local
+    hooks:
+      # ---- 1. 基础卫生（合并为单次调用，减少进程/uv 启动开销）----
+      - id: hygiene
+        name: hygiene (whitespace / eof / toml / conflict / large / line-ending)
+        entry: uv run --all-packages python tools/hygiene.py all --maxkb=500
+        language: system
+
+      # ---- 2. 代码质量 ----
+      - id: ruff
+        name: ruff
+        entry: uv run --all-packages ruff check --fix
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff-format
+        entry: uv run --all-packages ruff format
+        language: system
+        types: [python]
+
+      # ---- 3. 死代码 ----
+      - id: vulture
+        name: vulture (dead code @80)
+        entry: uv run --all-packages vulture packages/mikan-health/src packages/mikan-qb/src --min-confidence 80 --ignore-names exc_info
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # ---- 4. 复杂度 ----
+      - id: xenon
+        name: xenon (complexity D/C/B)
+        entry: uv run --all-packages xenon --max-absolute D --max-modules C --max-average B packages/mikan-health/src packages/mikan-qb/src
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # ---- 5. 类型检查 ----
+      - id: mypy
+        name: mypy
+        entry: uv run --all-packages mypy -p mikan_health -p mikan_qb
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # ---- 6. 测试与覆盖率（xdist 并行 + 单次运行 + 分组阈值校验）----
+      - id: pytest
+        name: pytest (coverage, xdist)
+        entry: uv run --all-packages python -m pytest packages --cov=mikan_health --cov=mikan_qb --cov-report=json:coverage.json -q -n 8 --dist worksteal
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: coverage-gate
+        name: coverage gate (health 75 / core 90 / qb 75)
+        entry: uv run --all-packages python tools/coverage_gate.py
+        language: system
+        pass_filenames: false
+        always_run: true

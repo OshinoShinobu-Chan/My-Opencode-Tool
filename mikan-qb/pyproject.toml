@@ -1,0 +1,44 @@
+[project]
+name = "mikan-qb-workspace"
+version = "0.1.0"
+description = "Mikan 新番订阅与 qBittorrent RSS 管理工作流（workspace 根，非发布包）"
+requires-python = ">=3.12"
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+    "pytest-xdist>=3.6",
+    "ruff>=0.6",
+    "pre-commit>=3.7",
+    "vulture>=2.11",
+    "xenon>=0.9",
+    "mypy>=1.10",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["packages/*/src", "packages/*/tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["packages"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.coverage.run]
+# Python 3.12 的 sys.monitoring 核心，覆盖率开销显著低于默认 tracer
+core = "sysmon"

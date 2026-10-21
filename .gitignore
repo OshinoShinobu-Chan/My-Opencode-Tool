@@ -1,0 +1,20 @@
+# 本地凭据（勿提交）
+/bangumi/token.txt
+.env
+.env.*
+!.env.example
+
+# Python 缓存（根目录层级；mikan-qb/ 子树由其自带 .gitignore 覆盖）
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# 编辑器 / 系统文件
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

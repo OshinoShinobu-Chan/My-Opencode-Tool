@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage.json
+htmlcov/
+
+# uv
+# uv.lock 需要入库以保证依赖可复现
+
+# 本地配置与凭据
+.env
+.env.*
+!.env.example
+config.local.toml
+
+# 运行期数据（只忽略仓库根目录下的这些目录，别误伤源码里的包名）
+*.db
+*.sqlite
+*.sqlite3
+/state.json
+/cache/
+/data/
+/jobs/
+
+# 计划产物
+/plans/
+
+# 临时存放待观看动画
+/tmp-watch/
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

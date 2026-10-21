@@ -1,0 +1,36 @@
+[project]
+name = "mikan-qb"
+version = "0.1.0"
+description = "Mikan 新番订阅与 qBittorrent RSS 管理 CLI"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mikan-health",
+    "qbittorrent-api>=2024.11",
+    "typer>=0.12",
+    "rich>=13.7",
+    "httpx>=0.27",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.2",
+]
+
+[project.scripts]
+mikan = "mikan_qb.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "ruff>=0.6",
+]
+
+[tool.uv.sources]
+mikan-health = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mikan_qb"]

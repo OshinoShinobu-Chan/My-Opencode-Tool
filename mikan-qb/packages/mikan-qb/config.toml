@@ -1,0 +1,66 @@
+[mikan]
+base_url = "https://mikanani.kas.pub"
+rate_limit_per_sec = 1.0
+cache_ttl_hours = 6.0
+timeout_seconds = 20.0
+max_retries = 3
+
+[qb]
+category = "番剧"
+tags = []
+save_root = "/downloads/anime"
+season_folder_template = "{year}{season}"
+save_path_template = "{root}/{anime}"
+feed_folder_template = "{season}"
+# RSS 名称里带字幕组：换组替换时新旧两个 feed 必须能共存，否则路径会撞车（409）
+feed_name_template = "{anime}@{subgroup}"
+# 规则名同样带字幕组：换组时新旧两条规则必须能共存（与 feed 同理）
+rule_name_template = "{lang}/{anime}@{subgroup}"
+torrent_tag_template = "mikan-{bangumi_id}"
+add_paused = false
+refresh_interval_minutes = 30
+download_repack_proper = false
+
+[bangumi]
+# 用 bgm.tv 的精确放送日程替代「开播日 + 7×集数」的估算（见 PLAN 0.x）
+# token 优先取 .env 的 BGM_TOKEN，也可用 token_file 指向一行 token 的文件
+enabled = true
+base_url = "https://api.bgm.tv/v0"
+cache_ttl_hours = 12.0
+rate_limit_per_sec = 1.0
+timeout_seconds = 20.0
+token_file = ""
+
+[taxonomy]
+# 与 mikan_health.core.taxonomy 的默认值保持一致；
+# 如需自定义，改这里即可（测试会校验二者是否漂移）
+simplified = ["简体", "简中", "简", "CHS", "GB"]
+traditional = ["繁体", "繁中", "繁", "CHT", "BIG5"]
+japanese = ["日语", "日文", "JP", "JPN"]
+dual_zh_jp = ["简繁日", "简日繁", "简日", "繁日", "JPSC", "JPTC"]
+softsub = ["内封", "外挂"]
+hardsub = ["内嵌", "内挂"]
+# 没有明确字幕标记时默认为繁体；出现下列标记则判为无字幕（生肉）
+default_language = "繁体"
+raw_markers = [
+    "raw",
+    "raws",
+    "生肉",
+    "无字幕",
+    "無字幕",
+    "无字幕版",
+    "no sub",
+    "nosub",
+    "无sub",
+]
+exclude_tokens = ["合集", "BDRip", "全卷", "Fin", "NCOP", "NCED", "PV", "Menu", "Fonts", "字体", "SP", "OVA"]
+pack_patterns = [
+    "\\[\\d{1,3}\\s*[-~—]\\s*\\d{1,3}\\]",
+    "\\b\\d{1,3}\\s*[-~—]\\s*\\d{1,3}\\s*(?:TV)?全集\\b",
+    "\\[(?:TV)?全集\\]",
+    "\\[(?:完)\\]",
+]
+
+[analysis]
+profile = "personal-normal"
+profiles_dir = ""
