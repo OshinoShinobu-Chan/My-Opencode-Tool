@@ -17,6 +17,16 @@ LANG_FAMILIES = ("simplified", "traditional", "dual_zh_jp")
 SUBTYPE_FAMILIES = ("softsub", "hardsub")
 
 MAX_VARIANTS = 16
+VERSION_RE = re.compile(r"(?i)(?<![a-z])v(\d{1,2})\b")
+RESOLUTION_RE = re.compile(r"(?i)\b(2160p|1440p|1080p|720p|480p|4k)\b")
+RESOLUTION_RANK = {
+    "4k": 2160,
+    "2160p": 2160,
+    "1440p": 1440,
+    "1080p": 1080,
+    "720p": 720,
+    "480p": 480,
+}
 
 
 @dataclass(frozen=True)
@@ -277,12 +287,14 @@ def solve(
     chosen = best[2]
     release_filter = build_filter(chosen, variants)
     simulation = simulate(all_releases, release_filter)
-    return Solution(
+    solution = Solution(
         variants=chosen,
         all_variants=tuple(variants),
         filter=release_filter,
         simulation=simulation,
     )
+    repaired = repair_multiple(solution, all_releases, tax)
+    return repaired if repaired is not None else solution
 
 
 def variant_score(variant: Variant, policy: Policy) -> float:
@@ -367,6 +379,178 @@ def simulate(releases: Iterable[Release], release_filter: ReleaseFilter) -> Simu
     return simulation
 
 
+
+def _combine_requires(existing: str, token: str) -> str:
+    """把新增的必须命中项与已有 must_contain 按 AND 语义组合。
+
+    Args:
+        existing: 既有 must_contain；空串表示无。
+        token: 新增必须命中的子串（按字面转义）。
+    """
+    escaped = re.escape(token)
+    if not existing:
+        return f"(?i:{escaped})"
+    return f"(?=.*(?:{existing}))(?=.*(?i:{escaped}))"
+
+
+def _hits_by_episode(
+    releases: list[Release], episodes: list[float], release_filter: ReleaseFilter
+) -> dict[float, list[Release]]:
+    """按集收集当前筛选器命中的发布。
+
+    Args:
+        releases: 全部发布记录。
+        episodes: 需要检查的集号。
+        release_filter: 当前筛选器。
+    """
+    wanted = set(episodes)
+    hits: dict[float, list[Release]] = {episode: [] for episode in episodes}
+    for release in releases:
+        if (
+            release.is_episode
+            and release.episode in wanted
+            and release_filter.matches(release.title)
+        ):
+            hits[release.episode].append(release)
+    return hits
+
+
+def _edition_repair(
+    release_filter: ReleaseFilter, hits: dict[float, list[Release]], taxonomy: Taxonomy
+) -> ReleaseFilter | None:
+    """用版本/片源标记（无修、Baha 等）消歧。
+
+    Args:
+        release_filter: 当前筛选器。
+        hits: 多命中集 -> 命中的发布。
+        taxonomy: 含 edition_tokens 的词典。
+    """
+    for token in taxonomy.edition_tokens:
+        folded = token.casefold()
+        if not all(
+            any(folded in release.title.casefold() for release in items)
+            for items in hits.values()
+        ):
+            continue
+        if all(
+            all(folded in release.title.casefold() for release in items)
+            for items in hits.values()
+        ):
+            continue
+        excluded = [release_filter.must_not_contain] if release_filter.must_not_contain else []
+        for other in taxonomy.edition_tokens:
+            other_folded = other.casefold()
+            if other_folded == folded or other_folded in folded or folded in other_folded:
+                continue
+            if any(
+                other_folded in release.title.casefold()
+                for items in hits.values()
+                for release in items
+            ):
+                excluded.append(f"(?i:{re.escape(other)})")
+        return ReleaseFilter(
+            must_contain=_combine_requires(release_filter.must_contain, token),
+            must_not_contain="|".join(excluded),
+            use_regex=True,
+        )
+    return None
+
+
+def _version_repair(
+    release_filter: ReleaseFilter, hits: dict[float, list[Release]]
+) -> ReleaseFilter | None:
+    """排除较低版本号，保留同集最新版本。
+
+    Args:
+        release_filter: 当前筛选器。
+        hits: 多命中集 -> 命中的发布。
+    """
+    versions: set[int] = set()
+    for items in hits.values():
+        for release in items:
+            versions.update(int(value) for value in VERSION_RE.findall(release.title))
+    if len(versions) < 2:
+        return None
+    top = max(versions)
+    lower = sorted(version for version in versions if version < top)
+    if not lower:
+        return None
+    pattern = "(?i:v(?:" + "|".join(str(version) for version in lower) + r")\b)"
+    excluded = [release_filter.must_not_contain] if release_filter.must_not_contain else []
+    excluded.append(pattern)
+    return ReleaseFilter(
+        must_contain=release_filter.must_contain,
+        must_not_contain="|".join(excluded),
+        use_regex=True,
+    )
+
+
+def _resolution_repair(
+    release_filter: ReleaseFilter, hits: dict[float, list[Release]]
+) -> ReleaseFilter | None:
+    """按分辨率消歧，保留最高分辨率。
+
+    Args:
+        release_filter: 当前筛选器。
+        hits: 多命中集 -> 命中的发布。
+    """
+    found: dict[str, int] = {}
+    for items in hits.values():
+        for release in items:
+            match = RESOLUTION_RE.search(release.title)
+            if match is not None:
+                key = match.group(1).casefold()
+                found[key] = RESOLUTION_RANK.get(key, 0)
+    if len(found) < 2:
+        return None
+    best = max(found, key=lambda key: found[key])
+    excluded = [release_filter.must_not_contain] if release_filter.must_not_contain else []
+    for other in found:
+        if other != best:
+            excluded.append(f"(?i:{re.escape(other)})")
+    return ReleaseFilter(
+        must_contain=_combine_requires(release_filter.must_contain, best),
+        must_not_contain="|".join(excluded),
+        use_regex=True,
+    )
+
+
+def repair_multiple(
+    solution: Solution, releases: list[Release], taxonomy: Taxonomy
+) -> Solution | None:
+    """尝试修复同集多命中；无法修复时返回 None。
+
+    Args:
+        solution: 初次求解结果。
+        releases: 全部发布记录。
+        taxonomy: 语言/字幕类型词典（含消歧标记）。
+    """
+    if solution.simulation.ok:
+        return solution
+    episodes = solution.simulation.multiple
+    if not episodes:
+        return None
+    hits = _hits_by_episode(releases, episodes, solution.filter)
+    if any(not items for items in hits.values()):
+        return None
+    attempts = (
+        lambda: _edition_repair(solution.filter, hits, taxonomy),
+        lambda: _version_repair(solution.filter, hits),
+        lambda: _resolution_repair(solution.filter, hits),
+    )
+    for attempt in attempts:
+        repaired = attempt()
+        if repaired is None:
+            continue
+        simulation = simulate(releases, repaired)
+        if simulation.ok:
+            return Solution(
+                variants=solution.variants,
+                all_variants=solution.all_variants,
+                filter=repaired,
+                simulation=simulation,
+            )
+    return None
 def _subsets(variants: list[Variant]):
     """枚举所有非空变体子集。"""
     total = 1 << len(variants)

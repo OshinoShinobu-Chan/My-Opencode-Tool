@@ -8,7 +8,7 @@ from datetime import date, datetime
 
 from bs4 import BeautifulSoup, Tag
 
-from mikan_health.core.releases import ParsedTitle, parse_title
+from mikan_health.core.releases import ParsedTitle, parse_title, subgroup_language_override
 from mikan_health.core.taxonomy import Taxonomy
 from mikan_health.data.models import (
     SOURCE_BANGUMI_PAGE,
@@ -22,6 +22,7 @@ from mikan_health.data.models import (
     Subgroup,
     WorkRef,
 )
+from mikan_health.labels import SOURCE_INFERRED, SOURCE_OVERRIDE
 
 DATETIME_FORMATS = ("%Y/%m/%d %H:%M:%S", "%Y/%m/%d %H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M")
 DATE_FORMATS = ("%m/%d/%Y", "%Y/%m/%d", "%Y-%m-%d")
@@ -223,6 +224,7 @@ def _release_from(
     subtitle_group_id: int,
     title: str,
     source: str,
+    taxonomy: Taxonomy,
     published_at: datetime | None = None,
     size_bytes: int | None = None,
     magnet: str | None = None,
@@ -237,12 +239,20 @@ def _release_from(
         subtitle_group_id: 字幕组 id。
         title: 发布标题。
         source: 数据来源标记。
+        taxonomy: 语言/字幕类型词典（含字幕组白名单）。
         published_at: 发布时间；未知为 None。
         size_bytes: 文件大小（字节）；未知为 None。
         magnet: 磁力链接；无则为 None。
         torrent_url: 种子链接；无则为 None。
         episode_url: 单集页面链接；无则为 None。
     """
+    language = parsed.language
+    language_source = parsed.language_source
+    override = subgroup_language_override(taxonomy, subtitle_group_id, parsed.subgroup_label)
+    if override and language_source == SOURCE_INFERRED:
+        language = override
+        language_source = SOURCE_OVERRIDE
+
     return Release(
         bangumi_id=bangumi_id,
         subtitle_group_id=subtitle_group_id,
@@ -253,8 +263,8 @@ def _release_from(
         is_extra=parsed.is_extra,
         resolution=parsed.resolution,
         codec=parsed.codec,
-        language=parsed.language,
-        language_source=parsed.language_source,
+        language=language,
+        language_source=language_source,
         sub_type=parsed.sub_type,
         is_dual_zh_jp=parsed.is_dual_zh_jp,
         subgroup_label=parsed.subgroup_label,
@@ -323,6 +333,7 @@ def parse_rss(
                 subtitle_group_id=subgroup_id,
                 title=title,
                 source=SOURCE_RSS,
+                taxonomy=tax,
                 published_at=published_at,
                 size_bytes=size_bytes,
                 torrent_url=torrent_url,
@@ -369,6 +380,7 @@ def _parse_table(
                 subtitle_group_id=subgroup_id,
                 title=title,
                 source=source,
+                taxonomy=taxonomy,
                 published_at=_parse_datetime(cells[3].get_text(strip=True)),
                 size_bytes=_parse_size(cells[2].get_text(strip=True)),
                 magnet=_str_attr(checkbox, "data-magnet"),

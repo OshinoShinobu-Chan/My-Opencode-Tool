@@ -17,6 +17,7 @@ description: Use when the user wants to pick a fansub group (字幕组) for a ne
 3. **涉及选择时必须给用户选项**：候选组 ≥2、`decision_required=true`、出现 tier U 组、或只有 tier C 可选时，把选项和证据摆给用户，不要自行拍板。
 4. **缺数据不下结论**：候选 `confidence=low` 时只陈述事实，不给风险判断。
 5. **先查黑名单**：选组前必须读 `../references/blocked-subgroups.md`，命中的字幕组一律排除，不得作为候选或推荐。
+6. **每部番必须让用户手动选组**：订阅任何番剧前，先排除黑名单，再用 `question` 工具向用户提供**最多 3 个**候选字幕组（按推荐/评分排序，附 tier、风险、语言、评分等证据）；用户选定后才能执行 `apply add`，不得自行决定。
 
 ## 前置检查
 

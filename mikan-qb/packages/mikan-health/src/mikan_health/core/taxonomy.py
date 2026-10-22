@@ -47,6 +47,14 @@ DEFAULT_PACK_PATTERNS = [
 # 变体筛选用于 must_not_contain 的正则片段；额外含裸「合集/全卷」，以覆盖无集号范围的合集。
 DEFAULT_PACK_FILTER_PATTERNS = (PACK_RANGE_RE, "合集", "全卷", PACK_FULL_RE)
 
+DEFAULT_EDITION_TOKENS = [
+    "无修",
+    "Uncensored",
+    "Baha",
+    "ABEMA",
+    "TV版",
+]
+
 
 class Taxonomy(BaseModel):
     """字幕标题的标签词典。所有解析都基于这里，改词典不需要改代码。
@@ -62,6 +70,8 @@ class Taxonomy(BaseModel):
         exclude_tokens: 需要排除的 token（合集、NCOP、PV 等）。
         pack_patterns: 合集标题匹配正则。
         default_language: 无明确标记时的默认语言（空串表示不默认）。
+        edition_tokens: 版本/片源区分标签；多命中消歧时按顺序优先（越靠前越优先）。
+        subgroup_languages: 无显式语言标注的字幕组白名单（sid 或组名 -> 语言）。
     """
 
     simplified: list[str] = Field(default_factory=lambda: list(DEFAULT_SIMPLIFIED))
@@ -75,3 +85,7 @@ class Taxonomy(BaseModel):
     pack_patterns: list[str] = Field(default_factory=lambda: list(DEFAULT_PACK_PATTERNS))
     # 没有明确字幕标记时的默认语言（空字符串表示不默认）
     default_language: str = "繁体"
+    # 版本/片源区分标签：多命中时按顺序优先（越靠前越优先）
+    edition_tokens: list[str] = Field(default_factory=lambda: list(DEFAULT_EDITION_TOKENS))
+    # 无显式语言标注的字幕组白名单：键为 sid 字符串或标题里的字幕组名
+    subgroup_languages: dict[str, str] = Field(default_factory=dict)

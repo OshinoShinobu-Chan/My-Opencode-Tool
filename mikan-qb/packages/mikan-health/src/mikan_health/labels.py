@@ -13,6 +13,7 @@ LANG_NONE = "无中文"
 
 SOURCE_EXPLICIT = "explicit"
 SOURCE_INFERRED = "inferred"
+SOURCE_OVERRIDE = "override"
 SOURCE_RAW = "raw"
 SOURCE_NONE = "none"
 
@@ -21,10 +22,10 @@ TRADITIONAL_LABELS = (LANG_TRAD, LANG_BOTH, LANG_DUAL)
 
 
 def is_explicit_chinese(language: str, language_source: str) -> bool:
-    """标题里明确写了简/繁（不含推断值）。
+    """标题里明确写了简/繁，或被字幕组白名单覆盖（不含推断值）。
 
     Args:
         language: 语言标签。
         language_source: 语言判定来源（explicit / inferred / raw / none）。
     """
-    return language_source == SOURCE_EXPLICIT and language != LANG_NONE
+    return language_source in (SOURCE_EXPLICIT, SOURCE_OVERRIDE) and language != LANG_NONE

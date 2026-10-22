@@ -209,6 +209,24 @@ def _resolve_language(
         return tax.default_language, SOURCE_INFERRED
     return LANG_NONE, SOURCE_NONE
 
+def subgroup_language_override(
+    tax: Taxonomy, subgroup_id: int, label: str | None
+) -> str | None:
+    """按字幕组 id 或标题中的组名查语言白名单。
+
+    Args:
+        tax: 语言/字幕类型词典（含 subgroup_languages）。
+        subgroup_id: 字幕组 id（RSS 的 subgroupid）。
+        label: 标题中的字幕组标签；无则为 None。
+    """
+    for key, language in tax.subgroup_languages.items():
+        name = key.strip()
+        if name == str(subgroup_id):
+            return language
+        if label and name.casefold() == label.casefold():
+            return language
+    return None
+
 
 def _detect_languages(title: str, tax: Taxonomy) -> tuple[list[str], bool]:
     """扫描标题中的简/繁/双语标记，返回标签列表与是否简日双语。

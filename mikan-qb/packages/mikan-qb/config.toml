@@ -60,6 +60,12 @@ pack_patterns = [
     "\\[(?:TV)?全集\\]",
     "\\[(?:完)\\]",
 ]
+edition_tokens = ["无修", "Uncensored", "Baha", "ABEMA", "TV版"]
+
+# 无显式语言标注的字幕组白名单（熟肉组）：键为 sid 或标题里的字幕组名
+[taxonomy.subgroup_languages]
+"615" = "繁体"
+"ANi" = "繁体"
 
 [analysis]
 profile = "personal-normal"

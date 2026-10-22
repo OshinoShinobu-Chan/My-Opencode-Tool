@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from mikan_health.core.policy import load_profile
-from mikan_health.core.releases import parse_title
+from mikan_health.core.releases import parse_title, subgroup_language_override
 from mikan_health.core.taxonomy import Taxonomy
 from mikan_health.core.variants import (
     ReleaseFilter,
@@ -11,7 +11,7 @@ from mikan_health.core.variants import (
     solve,
 )
 from mikan_health.data.models import Release
-from mikan_health.data.parse import parse_episode_table
+from mikan_health.data.parse import _release_from, parse_episode_table
 
 FIXTURES = Path(__file__).parent / "fixtures"
 TAX = Taxonomy()
@@ -127,15 +127,76 @@ def test_unsolvable_when_variants_split_and_overlap() -> None:
     assert solve(releases, load_profile("personal-normal"), TAX) is None
 
 
-def test_solution_reports_multiple_matches_for_same_token() -> None:
+def test_resolution_duplicates_keep_highest_quality() -> None:
     releases = [
         mk("[某组] 番名 [01][1080p][简体内嵌]"),
         mk("[某组] 番名 [01][720p][简体内嵌]"),
     ]
     solution = solve(releases, load_profile("personal-normal"), TAX)
     assert solution is not None
-    assert solution.simulation.multiple == [1.0]
-    assert solution.simulation.ok is False
+    assert solution.simulation.ok is True
+    assert solution.simulation.multiple == []
+    assert "1080p" in solution.filter.must_contain
+    assert "720p" in solution.filter.must_not_contain
+
+
+def test_version_duplicates_keep_latest_version() -> None:
+    releases = [
+        mk("[某组] 番名 [01v2][1080p][简日内嵌]"),
+        mk("[某组] 番名 [01v3][1080p][简日内嵌]"),
+        mk("[某组] 番名 [02][1080p][简日内嵌]"),
+        mk("[某组] 番名 [03][1080p][简日内嵌]"),
+    ]
+    solution = solve(releases, load_profile("personal-normal"), TAX)
+    assert solution is not None
+    assert solution.simulation.ok is True
+    assert solution.simulation.multiple == []
+    assert "v(?:2)" in solution.filter.must_not_contain
+
+
+def test_edition_duplicates_prefer_uncensored() -> None:
+    releases = []
+    for ep in range(1, 4):
+        releases.append(mk(f"[某组] 番名 [{ep:02d}][1080p][简／繁][TV版]"))
+        releases.append(mk(f"[某组] 番名 [{ep:02d}][1080p][简／繁][完全无修版]"))
+    solution = solve(releases, load_profile("personal-normal"), TAX)
+    assert solution is not None
+    assert solution.simulation.ok is True
+    assert "无修" in solution.filter.must_contain
+    assert "TV版" in solution.filter.must_not_contain
+
+
+def test_source_duplicates_prefer_baha() -> None:
+    releases = []
+    for ep in range(1, 4):
+        releases.append(mk(f"[黒ネズミたち] 番名 - {ep:02d} (ABEMA 1920x1080 AVC AAC MKV)"))
+        releases.append(mk(f"[黒ネズミたち] 番名 - {ep:02d} (Baha 1920x1080 AVC AAC MP4)"))
+    solution = solve(releases, load_profile("personal-normal"), TAX)
+    assert solution is not None
+    assert solution.simulation.ok is True
+    assert "Baha" in solution.filter.must_contain
+    assert "ABEMA" in solution.filter.must_not_contain
+
+
+def test_whitelist_overrides_unmarked_subgroup_language() -> None:
+    tax = Taxonomy(subgroup_languages={"615": "繁体", "ani": "繁体"})
+    assert subgroup_language_override(tax, 615, "黒ネズミたち") == "繁体"
+    assert subgroup_language_override(tax, 999, "Ani") == "繁体"
+    assert subgroup_language_override(tax, 999, "某组") is None
+
+    title = "[黒ネズミたち] 铁旅！meet with 铁道少女 - 02 (ABEMA 1920x1080 AVC AAC MKV)"
+    parsed = parse_title(title, tax)
+    release = _release_from(
+        parsed,
+        bangumi_id=1,
+        subtitle_group_id=615,
+        title=title,
+        source="rss",
+        taxonomy=tax,
+    )
+    assert release.language == "繁体"
+    assert release.language_source == "override"
+    assert release.has_explicit_chinese is True
 
 
 def test_language_preference_chain() -> None:

@@ -16,7 +16,12 @@ def test_shipped_taxonomy_matches_defaults() -> None:
     from mikan_health.core.taxonomy import Taxonomy
 
     config, _ = load_config()
-    assert config.taxonomy.model_dump() == Taxonomy().model_dump()
+    shipped = config.taxonomy.model_dump()
+    defaults = Taxonomy().model_dump()
+    # subgroup_languages 是个人白名单，允许与库默认值不同
+    shipped.pop("subgroup_languages")
+    defaults.pop("subgroup_languages")
+    assert shipped == defaults
 
 
 def test_default_config_loads_and_validates() -> None:

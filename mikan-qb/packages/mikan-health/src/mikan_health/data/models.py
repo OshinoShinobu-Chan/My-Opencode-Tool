@@ -27,7 +27,7 @@ class Release(BaseModel):
         resolution: 分辨率标签。
         codec: 编码标签。
         language: 语言标签；默认「无中文」。
-        language_source: 语言判定来源（explicit / inferred / raw / none）。
+        language_source: 语言判定来源（explicit / override / inferred / raw / none）。
         sub_type: 字幕类型（内封 / 外挂 / 内嵌 / 内挂）。
         is_dual_zh_jp: 是否为简繁 / 中日双语。
         subgroup_label: 标题里的字幕组标签。
@@ -67,7 +67,7 @@ class Release(BaseModel):
 
     @property
     def has_explicit_chinese(self) -> bool:
-        """标题里明确写了简/繁；`language_source == "inferred"` 的默认值不算。"""
+        """明确标注或被白名单覆盖；`language_source == "inferred"` 的默认值不算。"""
         return is_explicit_chinese(self.language, self.language_source)
 
 
