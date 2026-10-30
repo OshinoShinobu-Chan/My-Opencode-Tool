@@ -13,6 +13,15 @@ uv run mikan qb rules show "<name>" --json     # 单条规则完整定义
 
 已知环境（P0 实测，会随部署变化，以 `qb check` 为准）：qBittorrent v5.0.3 / WebAPI 2.11.2；服务器 Linux（`savePath` 形如 `/downloads/...`）；全局默认保存路径 `/downloads`。
 
+## 把已下载的视频取回本机
+
+qB 的 WebUI/API **没有文件下载接口**，只能拿到路径和状态。要取视频本体需走 SSH：
+
+- 容器路径 `/downloads/...` → 宿主 NAS 路径 `/mnt/nas/qbittorrent/...`
+- `ssh homelab`（`www.crimmy.top:22`，root，密钥免密；远端登录 shell 是 **nushell**）
+- 完整流程（定位种子 → 核对进度 → scp 到 `mikan-qb/tmp-watch/` → md5 校验）见 skill `mikan-episode-pull`。
+
+
 ## RSS feed 两条硬性事实
 
 1. **qB 不允许同一 RSS URL 出现在两个路径**（`addFeed` 返回 409 Conflict）。目标 URL 已存在于其他路径时必须**复用**，不要新建。

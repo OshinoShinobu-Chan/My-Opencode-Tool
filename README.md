@@ -37,7 +37,7 @@ Mikan 新番订阅与 qBittorrent RSS 管理工具，uv workspace 包含两个�
 - **`packages/mikan-health`**：独立的字幕组健康度评估算法包，零 qB 依赖，
   评分标准外置在 `profiles/*.toml`，改标准不用改代码。
 
-另含 `tools/sitewide/`（全站字幕组长期画像评估，2016–2026 报告）与 4 个 Agent Skill（见 `.opencode/skills/`）。
+另含 `tools/sitewide/`（全站字幕组长期画像评估，2016–2026 报告）与 6 个 Agent Skill（见 `.opencode/skills/`）。
 
 ```bash
 uv run mikan config validate          # 配置与 qB 连通性自检
@@ -54,7 +54,7 @@ uv run mikan status
 
 ```
 .
-├── .opencode/skills/   # Agent Skills（bangumi + mikan 系列 4 个 + 共享 references）
+├── .opencode/skills/   # Agent Skills（bangumi + mikan 系列 6 个 + 共享 references）
 ├── bangumi/            # Bangumi 番组计划 CLI（bgm.py）
 ├── mikan-qb/           # Mikan + qBittorrent 订阅管理（uv workspace）
 └── .gitignore
