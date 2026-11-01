@@ -80,12 +80,23 @@ powershell -NoProfile -ExecutionPolicy Bypass -File `
 
 ## 已知坑
 
-1. **scp 没有断点续传**：中断后重跑会从头覆盖，半截文件仍然存在，务必先删除不完整文件再重传。
-2. **PowerShell 5.1 传参与编码**：中文路径实测可正常传给 `ssh`/`scp`；但不要用 `bash -lc "..."` 这类多层引号，`nu` 会超时或报错。需要远端精确路径时直接用双引号包一整条命令。
-3. **`Get-FileHash` 遇到方括号会当成通配符**：文件名里有 `[Dynamis One]`、`[CA46A1B3]` 这类方括号时，必须用 `-LiteralPath`，否则返回 null。
-4. **本地目录名含 `！` `：` 等全角符号**：PowerShell 里用单引号包路径；`Remove-Item`/`Get-ChildItem` 同样建议 `-LiteralPath`。
-5. **`crimmy.top:8000` 需要登录**：未认证的 `/api/v2/app/version` 返回 403，不代表服务挂了。凭据只在 `mikan-qb/.env`，不要打印到对话里。
-6. **远端 `md5sum` 可用**（外部命令），但 `find` / `head` 等要小心 nu 内置同名命令。
+1. **scp 没有断点续传，长传输断线要用 sftp `reget`**：链路不稳时 `client_loop: send disconnect` 会中断，
+   已下载的部分仍留在目标目录。先保留半截文件，用 sftp 续传（比删除重传省一半以上流量）：
+
+   ```powershell
+   # 先把命令写进 UTF-8 无 BOM 的批处理文件，避免 PowerShell 引号被吞
+   'reget "<远端绝对路径>" "<本机绝对路径>"' | Set-Content -Encoding utf8 $env:TEMP\resume.txt
+   sftp -b "$env:TEMP\resume.txt" homelab
+   ```
+
+   续传后必须比对 md5（见第 5 步）；不匹配再删掉重来。
+2. **`-RemoteGlob` 里不要出现空格**：远端是 nushell，会把 `* - 05 *` 拆成四个参数喂给 `md5sum`，
+   命令直接卡死（表现为 dry-run 长时间无输出）。用无空格模式，如 `anime/学生会也有洞！/*05*.mp4`。
+3. **PowerShell 5.1 传参与编码**：中文路径实测可正常传给 `ssh`/`scp`；但不要用 `bash -lc "..."` 这类多层引号，`nu` 会超时或报错。需要远端精确路径时直接用双引号包一整条命令。
+4. **`Get-FileHash` 遇到方括号会当成通配符**：文件名里有 `[Dynamis One]`、`[CA46A1B3]` 这类方括号时，必须用 `-LiteralPath`，否则返回 null。
+5. **本地目录名含 `！` `：` 等全角符号**：PowerShell 里用单引号包路径；`Remove-Item`/`Get-ChildItem` 同样建议 `-LiteralPath`。
+6. **`crimmy.top:8000` 需要登录**：未认证的 `/api/v2/app/version` 返回 403，不代表服务挂了。凭据只在 `mikan-qb/.env`，不要打印到对话里。
+7. **远端 `md5sum` 可用**（外部命令），但 `find` / `head` 等要小心 nu 内置同名命令。
 
 ## 边界
 
